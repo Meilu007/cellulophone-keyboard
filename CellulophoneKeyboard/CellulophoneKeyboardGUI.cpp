@@ -376,5 +376,5 @@ namespace
     auto r = Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");
 }
 
-SE_DECLARE_INIT_STATIC_FILE(CellulophoneKeyboardGui.cpp);
+SE_DECLARE_INIT_STATIC_FILE(CellulophoneKeyboardGui);
 
