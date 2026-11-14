@@ -288,7 +288,7 @@ if (hit != -1)
 {
 activeNote = hit;
 pinNote = activeNote;
-pinVelocity = static_cast(15 + relY * 112.0f);
+pinVelocity = static_cast<int>(15 + relY * 112.0f);
 invalidateRect();
 }
 }
@@ -372,5 +372,6 @@ return MP_OK;
 };
 namespace
 {
-auto r = gmpi::Register::withId(L"Cellulophone_Vintage_Keyboard");
+auto r = gmpi::Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");
+
 }
