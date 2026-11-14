@@ -86,3 +86,5 @@ namespace
 {
     auto r = Register<CellulophoneKeyboardDsp>::withId(L"Cellulophone_Vintage_Keyboard");
 }
+
+SE_DECLARE_INIT_STATIC_FILE(CellulophoneKeyboard);
