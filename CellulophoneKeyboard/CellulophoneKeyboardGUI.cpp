@@ -1,11 +1,13 @@
 #define NOMINMAX
 #include "mp_sdk_gui2.h"
 #include "Drawing.h"
+#include "unicode_conversion.h"
 #include <algorithm>
 
 using namespace gmpi;
 using namespace gmpi_gui;
 using namespace GmpiDrawing;
+using namespace JmUnicodeConversions;
 
 class CellulophoneKeyboardGui : public MpGuiGfxBase
 {
@@ -21,7 +23,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
     IntGuiPin pinVelocity;
     FloatGuiPin pinPitchBend;
     FloatGuiPin pinModWheel;
-  
+
     Bitmap whiteKeyBmp;
     Bitmap blackKeyBmp;
 
@@ -51,19 +53,19 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
     void onStyleChanged()
     {
         if (!pinWhiteImage.getValue().empty())
-            whiteKeyBmp = GetGraphicsFactory().LoadImageU(pinWhiteImage.getValue());
+            whiteKeyBmp = GetGraphicsFactory().LoadImageU(WStringToUtf8(pinWhiteImage.getValue()));
         else
             whiteKeyBmp = nullptr;
 
         if (!pinBlackImage.getValue().empty())
-            blackKeyBmp = GetGraphicsFactory().LoadImageU(pinBlackImage.getValue());
+            blackKeyBmp = GetGraphicsFactory().LoadImageU(WStringToUtf8(pinBlackImage.getValue()));
         else
             blackKeyBmp = nullptr;
 
         invalidateRect();
     }
 
-    void getLayoutRects(Rect& outHousingRect, Rect& outPitchRect, Rect& outModRect, Rect& outKeysRect) const
+    void getLayoutRects(Rect& outHousingRect, Rect& outPitchRect, Rect& outModRect, Rect& outKeysRect)
     {
         auto r = getRect();
         float totalW = r.getWidth();
@@ -260,8 +262,9 @@ public:
         if (point.x >= pitchRect.left - 2.0f && point.x <= pitchRect.right + 2.0f)
         {
             dragMode = 2;
-            float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 
+
+float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 pitchValue = std::clamp(rel, 0.0f, 1.0f);
 pinPitchBend = pitchValue;
 invalidateRect();
@@ -369,5 +372,5 @@ return MP_OK;
 };
 namespace
 {
-auto r = Register::withId(L"Cellulophone_Vintage_Keyboard");
+auto r = gmpi::Register::withId(L"Cellulophone_Vintage_Keyboard");
 }
