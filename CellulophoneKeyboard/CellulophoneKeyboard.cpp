@@ -25,7 +25,7 @@ public:
         initializePin(pinPitchBend);
         initializePin(pinModWheel);
     }
-
+ 
     void onSetPins() override
     {
         unsigned char ch = static_cast<unsigned char>(pinChannel.getValue() & 0x0F);
