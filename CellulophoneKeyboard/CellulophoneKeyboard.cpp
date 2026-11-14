@@ -14,7 +14,7 @@ class CellulophoneKeyboardDsp : public MpBase2
     FloatInPin pinModWheel;
  
     int lastNote = -1;
- 
+
 public:
     CellulophoneKeyboardDsp()
     {
