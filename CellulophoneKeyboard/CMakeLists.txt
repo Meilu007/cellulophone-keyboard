@@ -27,6 +27,7 @@ add_library(${PROJECT_NAME} MODULE
     ${srcs}
     ${platform_srcs}
 )
+target_compile_definitions(${PROJECT_NAME} PRIVATE SE_TARGET_SEM)
 
 # Wichtig: Damit der Windows-Ressourcencompiler die XML-Datei findet und einbettet!
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
