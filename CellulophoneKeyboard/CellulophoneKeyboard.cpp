@@ -62,43 +62,43 @@ class CellulophoneKeyboardGui : public SeGuiInvisibleBase
     }
 
     // MIDI-Sendefunktionen
-    void sendNoteOn(int note, int velocity)
+     void sendNoteOn(int note, int velocity)
     {
         if (note < 0 || note > 127) return;
-        unsigned char msg;
-        msg = static_cast<unsigned char>(0x90 | (pinChannel.getValue() & 0x0F));
-        msg = static_cast<unsigned char>(note & 0x7F);
-        msg = static_cast<unsigned char>(std::clamp(velocity, 1, 127));
+        unsigned char msg[3];
+        msg[0] = static_cast<unsigned char>(0x90 | (pinChannel.getValue() & 0x0F));
+        msg[1] = static_cast<unsigned char>(note & 0x7F);
+        msg[2] = static_cast<unsigned char>(std::clamp(velocity, 1, 127));
         pinMidiOut.send(msg, 3);
     }
 
     void sendNoteOff(int note)
     {
         if (note < 0 || note > 127) return;
-        unsigned char msg;
-        msg = static_cast<unsigned char>(0x80 | (pinChannel.getValue() & 0x0F));
-        msg = static_cast<unsigned char>(note & 0x7F);
-        msg = 0;
+        unsigned char msg[3];
+        msg[0] = static_cast<unsigned char>(0x80 | (pinChannel.getValue() & 0x0F));
+        msg[1] = static_cast<unsigned char>(note & 0x7F);
+        msg[2] = 0;
         pinMidiOut.send(msg, 3);
     }
 
     void sendPitchBend(float normVal)
     {
         int bend = static_cast<int>(std::clamp(normVal, 0.0f, 1.0f) * 16383.0f);
-        unsigned char msg;
-        msg = static_cast<unsigned char>(0xE0 | (pinChannel.getValue() & 0x0F));
-        msg = static_cast<unsigned char>(bend & 0x7F);        // LSB (Fein)
-        msg = static_cast<unsigned char>((bend >> 7) & 0x7F); // MSB (Grob)
+        unsigned char msg[3];
+        msg[0] = static_cast<unsigned char>(0xE0 | (pinChannel.getValue() & 0x0F));
+        msg[1] = static_cast<unsigned char>(bend & 0x7F);        // LSB
+        msg[2] = static_cast<unsigned char>((bend >> 7) & 0x7F); // MSB
         pinMidiOut.send(msg, 3);
     }
 
     void sendModWheel(float normVal)
     {
         int ccVal = static_cast<int>(std::clamp(normVal, 0.0f, 1.0f) * 127.0f);
-        unsigned char msg;
-        msg = static_cast<unsigned char>(0xB0 | (pinChannel.getValue() & 0x0F));
-        msg = 1; // CC 01 (Modulation Wheel Standard)
-        msg = static_cast<unsigned char>(ccVal & 0x7F);
+        unsigned char msg[3];
+        msg[0] = static_cast<unsigned char>(0xB0 | (pinChannel.getValue() & 0x0F));
+        msg[1] = 1; // CC 01
+        msg[2] = static_cast<unsigned char>(ccVal & 0x7F);
         pinMidiOut.send(msg, 3);
     }
 
@@ -251,4 +251,173 @@ public:
         // 1. Linkes Bakelit-Gehäuse für Pitch- & Mod-Wheel zeichnen
         g.FillRectangle(housingRect, ebonyBrush);
         g.DrawRectangle(housingRect, borderBrush, 1.5f);
+
+drawSingleWheel(g, pitchRect, pitchValue, true, slotBrush, pressedBrush, borderBrush);
+drawSingleWheel(g, modRect, modValue, false, slotBrush, pressedBrush, borderBrush);
+// 2. Weiße Tasten zeichnen (ab startX nach rechts)
+int wIndex = 0;
+for (int i = 0; i < totalNotes; ++i)
+{
+int note = startNote + i;
+if (!isBlackKey(note))
+{
+Rect keyRect(startX + (wIndex * whiteWidth), 0.f, startX + ((wIndex + 1) * whiteWidth), height);
+if (whiteKeyBmp)
+{
+g.DrawBitmap(whiteKeyBmp, keyRect, Rect(0.f, 0.f, (float)whiteKeyBmp.GetSize().width, (float)whiteKeyBmp.GetSize().height));
+}
+else
+{
+g.FillRectangle(keyRect, (note == activeNote) ? pressedBrush : ivoryBrush);
+}
+g.DrawRectangle(keyRect, borderBrush, 1.0f);
+wIndex++;
+}
+}
+// 3. Schwarze Tasten zeichnen (ab startX nach rechts)
+wIndex = 0;
+for (int i = 0; i < totalNotes; ++i)
+{
+int note = startNote + i;
+if (isBlackKey(note))
+{
+float bx = startX + (wIndex * whiteWidth) - (blackWidth * 0.5f);
+Rect keyRect(bx, 0.f, bx + blackWidth, blackHeight);
+if (blackKeyBmp)
+{
+g.DrawBitmap(blackKeyBmp, keyRect, Rect(0.f, 0.f, (float)blackKeyBmp.GetSize().width, (float)blackKeyBmp.GetSize().height));
+}
+else
+{
+g.FillRectangle(keyRect, (note == activeNote) ? pressedBrush : ebonyBrush);
+}
+g.DrawRectangle(keyRect, borderBrush, 1.0f);
+}
+else
+{
+wIndex++;
+}
+}
+return MP_OK;
+}
+int32_t MP_STDCALL onPointerDown(int32_t flags, GmpiDrawing_API::MP1_POINT point) override
+{
+setCapture();
+Rect housingRect, pitchRect, modRect, keysRect;
+getLayoutRects(housingRect, pitchRect, modRect, keysRect);
+// Prüfen, ob Pitch-Wheel getroffen wurde
+if (point.x >= pitchRect.left - 2.0f && point.x <= pitchRect.right + 2.0f)
+{
+dragMode = 2;
+float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
+pitchValue = std::clamp(rel, 0.0f, 1.0f);
+sendPitchBend(pitchValue);
+invalidateRect();
+return MP_OK;
+}
+// Prüfen, ob Mod-Wheel getroffen wurde
+if (point.x >= modRect.left - 2.0f && point.x <= modRect.right + 2.0f)
+{
+dragMode = 3;
+float rel = 1.0f - ((point.y - modRect.top) / std::max(1.0f, modRect.getHeight()));
+modValue = std::clamp(rel, 0.0f, 1.0f);
+sendModWheel(modValue);
+invalidateRect();
+return MP_OK;
+}
+// Andernfalls Tastenbereich rechts prüfen
+if (point.x >= keysRect.left)
+{
+dragMode = 1;
+float relY = 0.5f;
+int hit = hitTestNote(point, keysRect, relY);
+if (hit != -1)
+{
+activeNote = hit;
+int velocity = static_cast(15 + relY * 112.0f);
+sendNoteOn(activeNote, velocity);
+invalidateRect();
+}
+}
+return MP_OK;
+}
+int32_t MP_STDCALL onPointerMove(int32_t flags, GmpiDrawing_API::MP1_POINT point) override
+{
+if (dragMode == 0) return MP_OK;
+Rect housingRect, pitchRect, modRect, keysRect;
+getLayoutRects(housingRect, pitchRect, modRect, keysRect);
+if (dragMode == 2) // Pitch-Wheel ziehen
+{
+float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
+pitchValue = std::clamp(rel, 0.0f, 1.0f);
+sendPitchBend(pitchValue);
+invalidateRect();
+}
+else if (dragMode == 3) // Mod-Wheel ziehen
+{
+float rel = 1.0f - ((point.y - modRect.top) / std::max(1.0f, modRect.getHeight()));
+modValue = std::clamp(rel, 0.0f, 1.0f);
+sendModWheel(modValue);
+invalidateRect();
+}
+else if (dragMode == 1) // Über Tasten streichen (Glissando)
+{
+float relY = 0.5f;
+int hit = hitTestNote(point, keysRect, relY);
+if (hit != activeNote)
+{
+if (activeNote != -1) sendNoteOff(activeNote);
+activeNote = hit;
+if (activeNote != -1)
+{
+int velocity = static_cast(15 + relY * 112.0f);
+sendNoteOn(activeNote, velocity);
+}
+invalidateRect();
+}
+}
+return MP_OK;
+}
+int32_t MP_STDCALL onPointerUp(int32_t flags, GmpiDrawing_API::MP1_POINT point) override
+{
+releaseCapture();
+// Pitch-Wheel schnappt per Federkraft zurück auf 0.5 (Mittelposition)
+if (dragMode == 2)
+{
+pitchValue = 0.5f;
+sendPitchBend(pitchValue);
+invalidateRect();
+}
+else if (dragMode == 1 && activeNote != -1)
+{
+sendNoteOff(activeNote);
+activeNote = -1;
+invalidateRect();
+}
+dragMode = 0;
+return MP_OK;
+}
+int32_t MP_STDCALL onMouseWheel(int32_t flags, int32_t delta, GmpiDrawing_API::MP1_POINT point) override
+{
+if (activeNote != -1)
+{
+sendNoteOff(activeNote);
+activeNote = -1;
+}
+int currentStart = pinStartNote.getValue();
+int step = (delta > 0) ? 12 : -12;
+int newStart = std::clamp(currentStart + step, 12, 96);
+if (newStart != currentStart)
+{
+pinStartNote = newStart;
+invalidateRect();
+}
+return MP_OK;
+}
+};
+namespace
+{
+auto r = Register::withId(L"Cellulophone_Vintage_Keyboard");
+}
+
 
