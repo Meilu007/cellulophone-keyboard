@@ -323,7 +323,8 @@ activeNote = hit;
 if (activeNote != -1)
 {
 pinNote = activeNote;
-pinVelocity = static_cast(15 + relY * 112.0f);
+pinVelocity = static_cast<int>(15 + relY * 112.0f);
+
 }
 else
 {
