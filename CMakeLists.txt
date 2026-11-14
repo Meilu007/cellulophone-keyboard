@@ -15,7 +15,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   se_sdk3_repo
-  GIT_REPOSITORY https://github.com
+  GIT_REPOSITORY https://github.com/JeffMcClintock/SynthEdit_SDK.git
   GIT_TAG origin/master
   SOURCE_SUBDIR se_sdk3
 )
