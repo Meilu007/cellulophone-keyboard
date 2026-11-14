@@ -7,7 +7,6 @@ set_plugin_standard_srcs(${PROJECT_NAME} TRUE TRUE)
 if(WIN32)
     set(platform_srcs
         CellulophoneKeyboard.rc
-        ${se_sdk_folder}/mp_sdk.def
     )
 elseif(APPLE)
     set(platform_srcs
