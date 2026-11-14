@@ -260,8 +260,9 @@ public:
         if (point.x >= pitchRect.left - 2.0f && point.x <= pitchRect.right + 2.0f)
         {
             dragMode = 2;
-            float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 
+
+float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 pitchValue = std::clamp(rel, 0.0f, 1.0f);
 pinPitchBend = pitchValue;
 invalidateRect();
