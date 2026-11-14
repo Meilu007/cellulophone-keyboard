@@ -21,7 +21,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
     IntGuiPin pinVelocity;
     FloatGuiPin pinPitchBend;
     FloatGuiPin pinModWheel;
-
+  
     Bitmap whiteKeyBmp;
     Bitmap blackKeyBmp;
 
