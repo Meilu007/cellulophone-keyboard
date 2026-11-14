@@ -7,7 +7,6 @@ set_plugin_standard_srcs(${PROJECT_NAME} FALSE TRUE)
 add_library(${PROJECT_NAME} MODULE
     ${sdk_srcs}
     ${srcs}
-    ${se_shared_folder}/Drawing.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
