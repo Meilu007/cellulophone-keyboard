@@ -21,7 +21,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
     IntGuiPin pinVelocity;
     FloatGuiPin pinPitchBend;
     FloatGuiPin pinModWheel;
-  
+
     Bitmap whiteKeyBmp;
     Bitmap blackKeyBmp;
 
@@ -36,7 +36,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
         int n = note % 12;
         return (n == 1 || n == 3 || n == 6 || n == 8 || n == 10);
     }
-    
+
     int countWhiteKeys(int startNote, int totalNotes) const
     {
         int count = 0;
@@ -260,9 +260,8 @@ public:
         if (point.x >= pitchRect.left - 2.0f && point.x <= pitchRect.right + 2.0f)
         {
             dragMode = 2;
+            float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 
-
-float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 pitchValue = std::clamp(rel, 0.0f, 1.0f);
 pinPitchBend = pitchValue;
 invalidateRect();
