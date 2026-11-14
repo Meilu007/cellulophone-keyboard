@@ -373,6 +373,8 @@ return MP_OK;
 };
 namespace
 {
-auto r = gmpi::Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");
-
+    auto r = Register<CellulophoneKeyboardDsp>::withId(L"Cellulophone_Vintage_Keyboard");
 }
+
+SE_DECLARE_INIT_STATIC_FILE(CellulophoneKeyboard);
+
