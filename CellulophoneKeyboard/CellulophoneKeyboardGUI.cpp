@@ -36,7 +36,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
         int n = note % 12;
         return (n == 1 || n == 3 || n == 6 || n == 8 || n == 10);
     }
-
+    
     int countWhiteKeys(int startNote, int totalNotes) const
     {
         int count = 0;
