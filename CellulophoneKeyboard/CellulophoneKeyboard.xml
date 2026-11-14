@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <PluginList>
   <Plugin id="Cellulophone_Vintage_Keyboard" name="Vintage Keyboard (Velocity)" category="MIDI" graphicsApi="Direct2D">
+    <Parameters>
+      <Parameter id="0" name="Note" datatype="int" default="-1" private="true" />
+      <Parameter id="1" name="Velocity" datatype="int" default="0" private="true" />
+      <Parameter id="2" name="PitchBend" datatype="float" default="0.5" private="true" />
+      <Parameter id="3" name="ModWheel" datatype="float" default="0.0" private="true" />
+    </Parameters>
     <GUI>
+      <Pin id="0" name="Channel" datatype="int" default="0" />
+      <Pin id="1" name="Start Note" datatype="int" default="48" />
+      <Pin id="2" name="Octaves" datatype="int" default="3" />
+      <Pin id="3" name="Ivory Color" datatype="string" default="FFF4EAD4" />
+      <Pin id="4" name="Ebony Color" datatype="string" default="FF1F1914" />
+      <Pin id="5" name="Pressed Color" datatype="string" default="FFE6C280" />
+      <Pin id="6" name="White Key Image" datatype="string" isFilename="true" default="" />
+      <Pin id="7" name="Black Key Image" datatype="string" isFilename="true" default="" />
+      <Pin id="8" parameterId="0" />
+      <Pin id="9" parameterId="1" />
+      <Pin id="10" parameterId="2" />
+      <Pin id="11" parameterId="3" />
+    </GUI>
+    <Audio>
       <Pin id="0" name="MIDI Out" direction="out" datatype="midi" />
       <Pin id="1" name="Channel" datatype="int" default="0" />
-      <Pin id="2" name="Start Note" datatype="int" default="48" />
-      <Pin id="3" name="Octaves" datatype="int" default="3" />
-      <Pin id="4" name="Ivory Color" datatype="string" default="FFF4EAD4" />
-      <Pin id="5" name="Ebony Color" datatype="string" default="FF1F1914" />
-      <Pin id="6" name="Pressed Color" datatype="string" default="FFE6C280" />
-      <Pin id="7" name="White Key Image" datatype="string" isFilename="true" default="" />
-      <Pin id="8" name="Black Key Image" datatype="string" isFilename="true" default="" />
-    </GUI>
+      <Pin id="2" parameterId="0" />
+      <Pin id="3" parameterId="1" />
+      <Pin id="4" parameterId="2" />
+      <Pin id="5" parameterId="3" />
+    </Audio>
   </Plugin>
 </PluginList>
