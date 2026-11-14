@@ -44,7 +44,7 @@ public:
                 pinMidiOut.send(offMsg, 3);
                 lastNote = -1;
             }
-
+  
             if (note >= 0 && note <= 127 && vel > 0)
             {
                 const unsigned char onMsg[] = {
