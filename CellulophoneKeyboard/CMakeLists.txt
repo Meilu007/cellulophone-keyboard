@@ -4,11 +4,24 @@ project(CellulophoneKeyboard)
 
 set_plugin_standard_srcs(${PROJECT_NAME} TRUE TRUE)
 
+if(WIN32)
+    set(platform_srcs
+        CellulophoneKeyboard.rc
+        ${se_sdk_folder}/mp_sdk.def
+    )
+elseif(APPLE)
+    set(platform_srcs
+        CellulophoneKeyboard.xml
+    )
+    set_source_files_properties(CellulophoneKeyboard.xml PROPERTIES
+        MACOSX_PACKAGE_LOCATION Resources
+    )
+endif()
+
 add_library(${PROJECT_NAME} MODULE
     ${sdk_srcs}
     ${srcs}
-    ${rc_file}
-    CellulophoneKeyboard.xml
+    ${platform_srcs}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -20,9 +33,6 @@ if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUNDLE TRUE
         BUNDLE_EXTENSION "sem"
-    )
-    set_source_files_properties(CellulophoneKeyboard.xml PROPERTIES
-        MACOSX_PACKAGE_LOCATION Resources
     )
     target_link_libraries(${PROJECT_NAME} "-framework Cocoa" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreText")
 elseif(WIN32)
