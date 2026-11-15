@@ -81,7 +81,11 @@ public:
     }
 };
 
-REGISTER_PLUGIN(CellulophoneKeyboardDsp, L"Cellulophone_Vintage_Keyboard");
+namespace
+{
+    auto r = gmpi::Register<CellulophoneKeyboardDsp>::withId(L"Cellulophone_Vintage_Keyboard");
+}
+
 
 
 
