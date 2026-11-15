@@ -190,7 +190,7 @@ public:
     }
 
 
-    int32_t MP_STDCALL OnRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
+    int32_t MP_STDCALL onRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
     {
         Graphics g(drawingContext);
         Rect housingRect, pitchRect, modRect, keysRect;
@@ -213,9 +213,10 @@ public:
         std::wstring ebonyHex = pinEbonyColor.getValue().empty() ? L"FF1F1914" : pinEbonyColor.getValue();
         std::wstring pressedHex = pinPressedColor.getValue().empty() ? L"FFE6C280" : pinPressedColor.getValue();
 
-        auto ivoryBrush = g.CreateSolidColorBrush(Color::FromHexString(ivoryHex));
-        auto ebonyBrush = g.CreateSolidColorBrush(Color::FromHexString(ebonyHex));
-        auto pressedBrush = g.CreateSolidColorBrush(Color::FromHexString(pressedHex));
+        auto ivoryBrush = g.CreateSolidColorBrush(Color::FromArgb(0xFFF4EAD4));
+        auto ebonyBrush = g.CreateSolidColorBrush(Color::FromArgb(0xFF1F1914));
+        auto pressedBrush = g.CreateSolidColorBrush(Color::FromArgb(0xFFE6C280));
+
         auto borderBrush = g.CreateSolidColorBrush(Color::FromRgb(0x3A2F25));
         auto slotBrush = g.CreateSolidColorBrush(Color::FromRgb(0x120E0B));
 
