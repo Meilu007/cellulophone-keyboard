@@ -182,6 +182,14 @@ public:
         initializePin(pinModWheel);
     }
 
+        int32_t MP_STDCALL initialize() override
+    {
+        auto res = MpGuiGfxBase::initialize();
+        onStyleChanged();
+        return res;
+    }
+
+
     int32_t MP_STDCALL OnRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
     {
         Graphics g(drawingContext);
@@ -199,12 +207,18 @@ public:
         float whiteWidth = width / static_cast<float>(whiteCount);
         float blackWidth = whiteWidth * 0.62f;
         float blackHeight = height * 0.62f;
+        
 
-        auto ivoryBrush = g.CreateSolidColorBrush(Color::FromHexString(pinIvoryColor.getValue()));
-        auto ebonyBrush = g.CreateSolidColorBrush(Color::FromHexString(pinEbonyColor.getValue()));
-        auto pressedBrush = g.CreateSolidColorBrush(Color::FromHexString(pinPressedColor.getValue()));
+        std::wstring ivoryHex = pinIvoryColor.getValue().empty() ? L"FFF4EAD4" : pinIvoryColor.getValue();
+        std::wstring ebonyHex = pinEbonyColor.getValue().empty() ? L"FF1F1914" : pinEbonyColor.getValue();
+        std::wstring pressedHex = pinPressedColor.getValue().empty() ? L"FFE6C280" : pinPressedColor.getValue();
+
+        auto ivoryBrush = g.CreateSolidColorBrush(Color::FromHexString(ivoryHex));
+        auto ebonyBrush = g.CreateSolidColorBrush(Color::FromHexString(ebonyHex));
+        auto pressedBrush = g.CreateSolidColorBrush(Color::FromHexString(pressedHex));
         auto borderBrush = g.CreateSolidColorBrush(Color::FromRgb(0x3A2F25));
         auto slotBrush = g.CreateSolidColorBrush(Color::FromRgb(0x120E0B));
+
 
         g.FillRectangle(housingRect, ebonyBrush);
         g.DrawRectangle(housingRect, borderBrush, 1.5f);
