@@ -243,6 +243,21 @@ public:
             }
         }
 
+    int32_t MP_STDCALL measure(GmpiDrawing_API::MP1_SIZE availableSize, GmpiDrawing_API::MP1_SIZE* returnDesiredSize) override
+    {
+        returnDesiredSize->width = (std::max)(120.0f, availableSize.width);
+        returnDesiredSize->height = (std::max)(40.0f, availableSize.height);
+        return MP_OK;
+    }
+
+    int32_t MP_STDCALL arrange(GmpiDrawing_API::MP1_RECT finalRect) override
+    {
+        auto res = MpGuiGfxBase::arrange(finalRect);
+        invalidateRect();
+        return res;
+    }
+
+        
         wIndex = 0;
         for (int i = 0; i < totalNotes; ++i)
         {
