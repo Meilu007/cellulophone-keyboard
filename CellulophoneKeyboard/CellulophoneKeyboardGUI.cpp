@@ -247,8 +247,8 @@ public:
 
     int32_t MP_STDCALL measure(GmpiDrawing_API::MP1_SIZE availableSize, GmpiDrawing_API::MP1_SIZE* returnDesiredSize) override
     {
-        returnDesiredSize->width = (std::max)(120.0f, availableSize.width);
-        returnDesiredSize->height = (std::max)(40.0f, availableSize.height);
+        returnDesiredSize->width = 360.0f;
+        returnDesiredSize->height = 75.0f;
         return MP_OK;
     }
 
