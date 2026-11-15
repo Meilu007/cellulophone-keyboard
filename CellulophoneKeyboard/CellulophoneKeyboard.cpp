@@ -81,9 +81,7 @@ public:
     }
 };
 
-namespace
-{
-    auto r = Register<CellulophoneKeyboardDsp>::withId(L"Cellulophone_Vintage_Keyboard");
-}
+REGISTER_PLUGIN(CellulophoneKeyboardDsp, L"Cellulophone_Vintage_Keyboard");
+
 
 
