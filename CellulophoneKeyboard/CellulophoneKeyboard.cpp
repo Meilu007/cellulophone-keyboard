@@ -1,7 +1,7 @@
 #define NOMINMAX
 #include "mp_sdk_audio.h"
 #include <algorithm>
-  
+
 using namespace gmpi;
 
 class CellulophoneKeyboardDsp : public MpBase2
