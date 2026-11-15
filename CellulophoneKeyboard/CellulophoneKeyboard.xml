@@ -7,15 +7,6 @@
       <Parameter id="2" name="PitchBend" datatype="float" default="0.5" private="true" />
       <Parameter id="3" name="ModWheel" datatype="float" default="0.0" private="true" />
     </Parameters>
-<?xml version="1.0" encoding="utf-8" ?>
-<PluginList>
-  <Plugin id="Cellulophone_Vintage_Keyboard" name="Vintage Keyboard (Velocity)" category="MIDI" graphicsApi="GmpiGui">
-    <Parameters>
-      <Parameter id="0" name="Note" datatype="int" default="-1" private="true" />
-      <Parameter id="1" name="Velocity" datatype="int" default="0" private="true" />
-      <Parameter id="2" name="PitchBend" datatype="float" default="0.5" private="true" />
-      <Parameter id="3" name="ModWheel" datatype="float" default="0.0" private="true" />
-    </Parameters>
     <GUI showOnModule="true">
       <Pin id="0" name="Channel" datatype="int" default="0" />
       <Pin id="1" name="Start Note" datatype="int" default="48" />
