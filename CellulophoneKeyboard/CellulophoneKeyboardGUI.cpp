@@ -191,6 +191,7 @@ public:
 
 
     int32_t MP_STDCALL onRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
+
     {
         Graphics g(drawingContext);
         Rect housingRect, pitchRect, modRect, keysRect;
@@ -258,7 +259,13 @@ public:
         return res;
     }
 
-        
+       int32_t MP_STDCALL openWindow() override
+    {
+        auto res = MpGuiGfxBase::openWindow();
+        invalidateRect();
+        return res;
+    }
+     
         wIndex = 0;
         for (int i = 0; i < totalNotes; ++i)
         {
