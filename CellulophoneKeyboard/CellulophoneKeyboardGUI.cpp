@@ -385,6 +385,10 @@ invalidateRect();
 return MP_OK;
 }
 };
-GMPI_REGISTER_GUI(MP_SUB_TYPE_GUI2, CellulophoneKeyboardGui, L"Cellulophone_Vintage_Keyboard");
+
+namespace
+{
+    auto r = gmpi::Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");
+}
 
 
