@@ -190,7 +190,8 @@ public:
     }
 
 
-    int32_t MP_STDCALL OnRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
+    int32_t MP_STDCALL onRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
+
 
 
     {
