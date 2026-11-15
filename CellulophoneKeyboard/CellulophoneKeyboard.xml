@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <PluginList>
-  <Plugin id="Cellulophone_Vintage_Keyboard" name="Vintage Keyboard (Velocity)" category="MIDI" graphicsApi="Direct2D">
+  <Plugin id="Cellulophone_Vintage_Keyboard" name="Vintage Keyboard (Velocity)" category="MIDI" graphicsApi="GmpiGui">
+
     <GUI>
       <Pin id="0" name="MIDI Out" direction="out" datatype="midi" />
       <Pin id="1" name="Channel" datatype="int" default="0" />
