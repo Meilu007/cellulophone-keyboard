@@ -1,19 +1,16 @@
 cmake_minimum_required(VERSION 3.19)
-
 project(CellulophoneKeyboard)
 
-BUILD_GMPI_PLUGIN(
-    PROJECT_NAME CellulophoneKeyboard
+build_gmpi_plugin(
+    PROJECT_NAME ${PROJECT_NAME}
     HAS_DSP
     HAS_GUI
 )
 
-target_include_directories(CellulophoneKeyboard PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
-    target_compile_definitions(CellulophoneKeyboard PRIVATE SE_TARGET_SEM)
-    target_link_libraries(CellulophoneKeyboard d2d1 dwrite windowscodecs)
-    target_link_options(CellulophoneKeyboard PRIVATE "/EXPORT:MP_GetFactory")
+    target_link_libraries(${PROJECT_NAME} d2d1 dwrite windowscodecs)
 elseif(APPLE)
-    target_link_libraries(CellulophoneKeyboard "-framework Cocoa" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreText")
+    target_link_libraries(${PROJECT_NAME} "-framework Cocoa" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreText")
 endif()
