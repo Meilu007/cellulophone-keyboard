@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <PluginList>
-  <Plugin id="Cellulophone_Vintage_Keyboard" name="Vintage Keyboard (Velocity)" category="MIDI" graphicsApi="GmpiGui">
+  <Plugin id="Cellulophone_Vintage_Keyboard" name="Vintage Keyboard (Velocity)" category="MIDI" graphicsApi="GmpiGui" showOnModule="true">
     <Parameters>
       <Parameter id="0" name="Note" datatype="int" default="-1" private="true" />
       <Parameter id="1" name="Velocity" datatype="int" default="0" private="true" />
@@ -31,3 +31,4 @@
     </Audio>
   </Plugin>
 </PluginList>
+
