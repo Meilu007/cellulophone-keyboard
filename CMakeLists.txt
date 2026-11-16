@@ -1,58 +1,54 @@
 cmake_minimum_required(VERSION 3.19)
-project(CellulophoneKeyboard)
 
-set(sdk_files
-    ${se_sdk_folder}/mp_sdk_common.cpp
-    ${se_sdk_folder}/mp_sdk_gui.cpp
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE) 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+set(SE_LOCAL_BUILD FALSE CACHE BOOL "Execute extra build steps for developers machine")
+
+if(NOT GENERATOR_IS_MULTI_CONFIG)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+endif()
+
+include(FetchContent)
+
+FetchContent_Declare(
+  se_sdk3_repo
+  GIT_REPOSITORY "https://github.com/JeffMcClintock/SynthEdit_SDK.git"
+  GIT_TAG origin/master
+  SOURCE_SUBDIR se_sdk3
 )
 
-if(EXISTS "${se_sdk_folder}/mp_sdk_gui2.cpp")
-    list(APPEND sdk_files ${se_sdk_folder}/mp_sdk_gui2.cpp)
-endif()
+FetchContent_MakeAvailable(se_sdk3_repo)
 
-if(WIN32)
-    add_library(CellulophoneKeyboard MODULE
-        CellulophoneKeyboardGui.cpp
-        CellulophoneKeyboard.rc
-        ${sdk_files}
-    )
-    target_link_libraries(CellulophoneKeyboard d2d1 dwrite windowscodecs)
-    target_link_options(CellulophoneKeyboard PRIVATE "/EXPORT:MP_GetFactory")
-elseif(APPLE)
-    add_library(CellulophoneKeyboard MODULE
-        CellulophoneKeyboardGui.cpp
-        CellulophoneKeyboard.xml
-        ${sdk_files}
-    )
-    set_target_properties(CellulophoneKeyboard PROPERTIES
-        BUNDLE TRUE
-        BUNDLE_EXTENSION "sem"
-    )
-    set_source_files_properties(CellulophoneKeyboard.xml PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    target_link_libraries(CellulophoneKeyboard "-framework Cocoa" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreText")
-else()
-    add_library(CellulophoneKeyboard MODULE
-        CellulophoneKeyboardGui.cpp
-        ${sdk_files}
-    )
-endif()
+project(MyModules)
 
-target_include_directories(CellulophoneKeyboard PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+enable_testing()
+
+set(se_sdk_folder
+    ${se_sdk3_repo_SOURCE_DIR}/se_sdk3
+    )
+set(se_shared_folder
+    ${se_sdk3_repo_SOURCE_DIR}/shared
+    )
+
+set(sdk_folder ${se_sdk_folder})
+
+include_directories(
     ${se_sdk_folder}
     ${se_shared_folder}
-)
+    )
 
-target_compile_definitions(CellulophoneKeyboard PRIVATE
-    _UNICODE
-    UNICODE
-    SE_TARGET_SEM
-    $<$<CONFIG:Debug>:_DEBUG>
-    $<$<CONFIG:Release>:NDEBUG>
-)
+set(CMAKE_CXX_STANDARD 17)
 
-set_target_properties(CellulophoneKeyboard PROPERTIES
-    PREFIX ""
-    SUFFIX ".sem"
-    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
-)
+add_definitions(-D_UNICODE)
+add_definitions(-DSE_TARGET_SEM)
+
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast")
+endif()
+
+include(plugin_helper.cmake)
+
+add_subdirectory(CellulophoneKeyboard)
