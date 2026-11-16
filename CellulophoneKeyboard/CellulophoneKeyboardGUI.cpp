@@ -340,7 +340,7 @@ int hit = hitTestNote(point, keysRect, relY);
 if (hit != -1)
 {
 activeNote = hit;
-int velocity = static_cast(15 + relY * 112.0f);
+int velocity = static_cast<int>(15 + relY * 112.0f);
 sendNoteOn(activeNote, velocity);
 invalidateRect();
 }
@@ -422,6 +422,10 @@ return MP_OK;
 };
 namespace
 {
-auto r = gmpi::Register::withId(L"Cellulophone_Vintage_Keyboard");
+namespace
+{
+    auto r = gmpi::Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");
+}
+
 }
 
