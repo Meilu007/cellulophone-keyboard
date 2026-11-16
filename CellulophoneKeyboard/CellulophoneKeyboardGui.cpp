@@ -12,7 +12,7 @@ using namespace JmUnicodeConversions;
 
 class CellulophoneKeyboardGui : public MpGuiGfxBase
 {
-    MidiGuiPin pinMidiOut;
+    BlobGuiPin pinMidiOut;
     IntGuiPin pinChannel;
     IntGuiPin pinStartNote;
     IntGuiPin pinOctaves;
@@ -71,7 +71,8 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(note & 0x7F),
             (unsigned char)(std::clamp(velocity, 1, 127))
         };
-        pinMidiOut.send(msg, 3);
+        pinMidiOut.setValue(gmpi::MpBlob(3, msg));
+
     }
 
     void sendNoteOff(int note)
@@ -82,7 +83,8 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(note & 0x7F),
             0
         };
-        pinMidiOut.send(msg, 3);
+       pinMidiOut.setValue(gmpi::MpBlob(3, msg));
+
     }
 
     void sendPitchBend(float normVal)
@@ -93,7 +95,8 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(bend & 0x7F),
             (unsigned char)((bend >> 7) & 0x7F)
         };
-        pinMidiOut.send(msg, 3);
+        pinMidiOut.setValue(gmpi::MpBlob(3, msg));
+
     }
 
     void sendModWheel(float normVal)
@@ -104,7 +107,8 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             1,
             (unsigned char)(ccVal & 0x7F)
         };
-        pinMidiOut.send(msg, 3);
+       pinMidiOut.setValue(gmpi::MpBlob(3, msg));
+
     }
 
     void getLayoutRects(Rect& outHousingRect, Rect& outPitchRect, Rect& outModRect, Rect& outKeysRect)
