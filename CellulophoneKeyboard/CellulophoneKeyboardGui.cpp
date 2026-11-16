@@ -1,8 +1,10 @@
 #define NOMINMAX
 #include "mp_sdk_gui2.h"
+#include "mp_midi.h"
 #include "Drawing.h"
 #include "unicode_conversion.h"
 #include <algorithm>
+
    
 using namespace gmpi;
 using namespace gmpi_gui;
@@ -376,7 +378,8 @@ if (activeNote != -1) sendNoteOff(activeNote);
 activeNote = hit;
 if (activeNote != -1)
 {
-int velocity = static_cast(15 + relY * 112.0f);
+int velocity = static_cast<int>(15 + relY * 112.0f);
+
 sendNoteOn(activeNote, velocity);
 }
 invalidateRect();
