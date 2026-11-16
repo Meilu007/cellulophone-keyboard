@@ -55,4 +55,6 @@ target_compile_definitions(CellulophoneKeyboard PRIVATE
 set_target_properties(CellulophoneKeyboard PROPERTIES
     PREFIX ""
     SUFFIX ".sem"
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
+
