@@ -1,11 +1,17 @@
 cmake_minimum_required(VERSION 3.19)
 project(CellulophoneKeyboard)
 
-add_library(CellulophoneKeyboard MODULE
-    CellulophoneKeyboardGui.cpp
-    CellulophoneKeyboard.rc
+set(gui_sdk_srcs
     ${se_sdk_folder}/mp_sdk_common.cpp
     ${se_sdk_folder}/mp_sdk_gui.cpp
+)
+if(EXISTS "${se_sdk_folder}/mp_sdk_gui2.cpp")
+    list(APPEND gui_sdk_srcs ${se_sdk_folder}/mp_sdk_gui2.cpp)
+endif()
+
+add_library(CellulophoneKeyboard MODULE
+    CellulophoneKeyboardGui.cpp
+    ${gui_sdk_srcs}
 )
 
 target_include_directories(CellulophoneKeyboard PRIVATE
@@ -29,6 +35,7 @@ set_target_properties(CellulophoneKeyboard PROPERTIES
 )
 
 if(WIN32)
+    target_sources(CellulophoneKeyboard PRIVATE CellulophoneKeyboard.rc)
     target_link_libraries(CellulophoneKeyboard d2d1 dwrite windowscodecs)
     target_link_options(CellulophoneKeyboard PRIVATE "/EXPORT:MP_GetFactory")
 elseif(APPLE)
