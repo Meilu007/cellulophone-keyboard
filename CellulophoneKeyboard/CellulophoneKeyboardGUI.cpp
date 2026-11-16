@@ -3,7 +3,7 @@
 #include "Drawing.h"
 #include "unicode_conversion.h"
 #include <algorithm>
-
+   
 using namespace gmpi;
 using namespace gmpi_gui;
 using namespace GmpiDrawing;
