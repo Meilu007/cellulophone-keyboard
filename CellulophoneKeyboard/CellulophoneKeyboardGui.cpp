@@ -67,9 +67,9 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
     {
         if (note < 0 || note > 127) return;
         const unsigned char msg[] = {
-            static_cast<unsigned char>(0x90 | (pinChannel.getValue() & 0x0F)),
-            static_cast<unsigned char>(note & 0x7F),
-            static_cast<unsigned char>(std::clamp(velocity, 1, 127))
+            (unsigned char)(0x90 | (pinChannel.getValue() & 0x0F)),
+            (unsigned char)(note & 0x7F),
+            (unsigned char)(std::clamp(velocity, 1, 127))
         };
         pinMidiOut.send(msg, 3);
     }
@@ -78,8 +78,8 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
     {
         if (note < 0 || note > 127) return;
         const unsigned char msg[] = {
-            static_cast<unsigned char>(0x80 | (pinChannel.getValue() & 0x0F)),
-            static_cast<unsigned char>(note & 0x7F),
+            (unsigned char)(0x80 | (pinChannel.getValue() & 0x0F)),
+            (unsigned char)(note & 0x7F),
             0
         };
         pinMidiOut.send(msg, 3);
@@ -87,22 +87,22 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
 
     void sendPitchBend(float normVal)
     {
-        int bend = static_cast<int>(std::clamp(normVal, 0.0f, 1.0f) * 16383.0f);
+        int bend = int(std::clamp(normVal, 0.0f, 1.0f) * 16383.0f);
         const unsigned char msg[] = {
-            static_cast<unsigned char>(0xE0 | (pinChannel.getValue() & 0x0F)),
-            static_cast<unsigned char>(bend & 0x7F),
-            static_cast<unsigned char>((bend >> 7) & 0x7F)
+            (unsigned char)(0xE0 | (pinChannel.getValue() & 0x0F)),
+            (unsigned char)(bend & 0x7F),
+            (unsigned char)((bend >> 7) & 0x7F)
         };
         pinMidiOut.send(msg, 3);
     }
 
     void sendModWheel(float normVal)
     {
-        int ccVal = static_cast<int>(std::clamp(normVal, 0.0f, 1.0f) * 127.0f);
+        int ccVal = int(std::clamp(normVal, 0.0f, 1.0f) * 127.0f);
         const unsigned char msg[] = {
-            static_cast<unsigned char>(0xB0 | (pinChannel.getValue() & 0x0F)),
+            (unsigned char)(0xB0 | (pinChannel.getValue() & 0x0F)),
             1,
-            static_cast<unsigned char>(ccVal & 0x7F)
+            (unsigned char)(ccVal & 0x7F)
         };
         pinMidiOut.send(msg, 3);
     }
@@ -139,7 +139,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
         int octaves = std::clamp(pinOctaves.getValue(), 1, 8);
         int totalNotes = octaves * 12 + 1;
         int whiteCount = countWhiteKeys(startNote, totalNotes);
-        float whiteWidth = width / static_cast<float>(whiteCount);
+        float whiteWidth = width / float(whiteCount);
         float blackWidth = whiteWidth * 0.62f;
         float blackHeight = height * 0.62f;
 
@@ -212,13 +212,13 @@ public:
     {
         initializePin(pinMidiOut);
         initializePin(pinChannel);
-        initializePin(pinStartNote, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
-        initializePin(pinOctaves, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
-        initializePin(pinIvoryColor, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
-        initializePin(pinEbonyColor, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
-        initializePin(pinPressedColor, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
-        initializePin(pinWhiteImage, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
-        initializePin(pinBlackImage, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
+        initializePin(pinStartNote, (MpGuiBaseMemberPtr2)&CellulophoneKeyboardGui::onStyleChanged);
+        initializePin(pinOctaves, (MpGuiBaseMemberPtr2)&CellulophoneKeyboardGui::onStyleChanged);
+        initializePin(pinIvoryColor, (MpGuiBaseMemberPtr2)&CellulophoneKeyboardGui::onStyleChanged);
+        initializePin(pinEbonyColor, (MpGuiBaseMemberPtr2)&CellulophoneKeyboardGui::onStyleChanged);
+        initializePin(pinPressedColor, (MpGuiBaseMemberPtr2)&CellulophoneKeyboardGui::onStyleChanged);
+        initializePin(pinWhiteImage, (MpGuiBaseMemberPtr2)&CellulophoneKeyboardGui::onStyleChanged);
+        initializePin(pinBlackImage, (MpGuiBaseMemberPtr2)&CellulophoneKeyboardGui::onStyleChanged);
     }
 
     int32_t MP_STDCALL initialize() override
@@ -256,7 +256,7 @@ public:
         int octaves = std::clamp(pinOctaves.getValue(), 1, 8);
         int totalNotes = octaves * 12 + 1;
         int whiteCount = countWhiteKeys(startNote, totalNotes);
-        float whiteWidth = width / static_cast<float>(whiteCount);
+        float whiteWidth = width / float(whiteCount);
         float blackWidth = whiteWidth * 0.62f;
         float blackHeight = height * 0.62f;
 
@@ -272,8 +272,10 @@ public:
 
         g.FillRectangle(housingRect, ebonyBrush);
         g.DrawRectangle(housingRect, borderBrush, 1.5f);
-drawSingleWheel(g, pitchRect, pitchValue, true, slotBrush, pressedBrush, borderBrush);
-drawSingleWheel(g, modRect, modValue, false, slotBrush, pressedBrush, borderBrush);
+
+        drawSingleWheel(g, pitchRect, pitchValue, true, slotBrush, pressedBrush, borderBrush);
+
+        drawSingleWheel(g, modRect, modValue, false, slotBrush, pressedBrush, borderBrush);
 int wIndex = 0;
 for (int i = 0; i < totalNotes; ++i)
 {
@@ -341,7 +343,7 @@ int hit = hitTestNote(point, keysRect, relY);
 if (hit != -1)
 {
 activeNote = hit;
-int velocity = static_cast<int>(15 + relY * 112.0f);
+int velocity = int(15 + relY * 112.0f);
 sendNoteOn(activeNote, velocity);
 invalidateRect();
 }
@@ -377,8 +379,7 @@ if (activeNote != -1) sendNoteOff(activeNote);
 activeNote = hit;
 if (activeNote != -1)
 {
-int velocity = static_cast<int>(15 + relY * 112.0f);
-
+int velocity = int(15 + relY * 112.0f);
 sendNoteOn(activeNote, velocity);
 }
 invalidateRect();
@@ -424,10 +425,5 @@ return MP_OK;
 };
 namespace
 {
-namespace
-{
-    auto r = gmpi::Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");
+auto r = gmpi::Register::withId(L"Cellulophone_Vintage_Keyboard");
 }
-
-}
-
