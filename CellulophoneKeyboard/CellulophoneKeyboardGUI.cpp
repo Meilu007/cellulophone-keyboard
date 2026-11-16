@@ -3,7 +3,7 @@
 #include "Drawing.h"
 #include "unicode_conversion.h"
 #include <algorithm>
-    
+
 using namespace gmpi;
 using namespace gmpi_gui;
 using namespace GmpiDrawing;
@@ -11,6 +11,7 @@ using namespace JmUnicodeConversions;
 
 class CellulophoneKeyboardGui : public MpGuiGfxBase
 {
+    MidiGuiPin pinMidiOut;
     IntGuiPin pinChannel;
     IntGuiPin pinStartNote;
     IntGuiPin pinOctaves;
@@ -19,10 +20,6 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
     StringGuiPin pinPressedColor;
     StringGuiPin pinWhiteImage;
     StringGuiPin pinBlackImage;
-    IntGuiPin pinNote;
-    IntGuiPin pinVelocity;
-    FloatGuiPin pinPitchBend;
-    FloatGuiPin pinModWheel;
 
     Bitmap whiteKeyBmp;
     Bitmap blackKeyBmp;
@@ -63,6 +60,50 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             blackKeyBmp = nullptr;
 
         invalidateRect();
+    }
+
+    void sendNoteOn(int note, int velocity)
+    {
+        if (note < 0 || note > 127) return;
+        const unsigned char msg[] = {
+            static_cast<unsigned char>(0x90 | (pinChannel.getValue() & 0x0F)),
+            static_cast<unsigned char>(note & 0x7F),
+            static_cast<unsigned char>(std::clamp(velocity, 1, 127))
+        };
+        pinMidiOut.send(msg, 3);
+    }
+
+    void sendNoteOff(int note)
+    {
+        if (note < 0 || note > 127) return;
+        const unsigned char msg[] = {
+            static_cast<unsigned char>(0x80 | (pinChannel.getValue() & 0x0F)),
+            static_cast<unsigned char>(note & 0x7F),
+            0
+        };
+        pinMidiOut.send(msg, 3);
+    }
+
+    void sendPitchBend(float normVal)
+    {
+        int bend = static_cast<int>(std::clamp(normVal, 0.0f, 1.0f) * 16383.0f);
+        const unsigned char msg[] = {
+            static_cast<unsigned char>(0xE0 | (pinChannel.getValue() & 0x0F)),
+            static_cast<unsigned char>(bend & 0x7F),
+            static_cast<unsigned char>((bend >> 7) & 0x7F)
+        };
+        pinMidiOut.send(msg, 3);
+    }
+
+    void sendModWheel(float normVal)
+    {
+        int ccVal = static_cast<int>(std::clamp(normVal, 0.0f, 1.0f) * 127.0f);
+        const unsigned char msg[] = {
+            static_cast<unsigned char>(0xB0 | (pinChannel.getValue() & 0x0F)),
+            1,
+            static_cast<unsigned char>(ccVal & 0x7F)
+        };
+        pinMidiOut.send(msg, 3);
     }
 
     void getLayoutRects(Rect& outHousingRect, Rect& outPitchRect, Rect& outModRect, Rect& outKeysRect)
@@ -168,6 +209,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
 public:
     CellulophoneKeyboardGui()
     {
+        initializePin(pinMidiOut);
         initializePin(pinChannel);
         initializePin(pinStartNote, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
         initializePin(pinOctaves, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
@@ -176,24 +218,30 @@ public:
         initializePin(pinPressedColor, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
         initializePin(pinWhiteImage, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
         initializePin(pinBlackImage, static_cast<MpGuiBaseMemberPtr2>(&CellulophoneKeyboardGui::onStyleChanged));
-        initializePin(pinNote);
-        initializePin(pinVelocity);
-        initializePin(pinPitchBend);
-        initializePin(pinModWheel);
     }
 
-        int32_t MP_STDCALL initialize() override
+    int32_t MP_STDCALL initialize() override
     {
         auto res = MpGuiGfxBase::initialize();
         onStyleChanged();
         return res;
     }
 
+    int32_t MP_STDCALL measure(GmpiDrawing_API::MP1_SIZE availableSize, GmpiDrawing_API::MP1_SIZE* returnDesiredSize) override
+    {
+        returnDesiredSize->width = 360.0f;
+        returnDesiredSize->height = 75.0f;
+        return MP_OK;
+    }
 
-    int32_t MP_STDCALL onRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
+    int32_t MP_STDCALL arrange(GmpiDrawing_API::MP1_RECT finalRect) override
+    {
+        auto res = MpGuiGfxBase::arrange(finalRect);
+        invalidateRect();
+        return res;
+    }
 
-
-
+    int32_t MP_STDCALL OnRender(GmpiDrawing_API::IMpDeviceContext* drawingContext) override
     {
         Graphics g(drawingContext);
         Rect housingRect, pitchRect, modRect, keysRect;
@@ -210,102 +258,68 @@ public:
         float whiteWidth = width / static_cast<float>(whiteCount);
         float blackWidth = whiteWidth * 0.62f;
         float blackHeight = height * 0.62f;
-        
 
         std::wstring ivoryHex = pinIvoryColor.getValue().empty() ? L"FFF4EAD4" : pinIvoryColor.getValue();
         std::wstring ebonyHex = pinEbonyColor.getValue().empty() ? L"FF1F1914" : pinEbonyColor.getValue();
         std::wstring pressedHex = pinPressedColor.getValue().empty() ? L"FFE6C280" : pinPressedColor.getValue();
 
-        auto ivoryBrush = g.CreateSolidColorBrush(Color::FromArgb(0xFFF4EAD4));
-        auto ebonyBrush = g.CreateSolidColorBrush(Color::FromArgb(0xFF1F1914));
-        auto pressedBrush = g.CreateSolidColorBrush(Color::FromArgb(0xFFE6C280));
-
+        auto ivoryBrush = g.CreateSolidColorBrush(Color::FromHexString(ivoryHex));
+        auto ebonyBrush = g.CreateSolidColorBrush(Color::FromHexString(ebonyHex));
+        auto pressedBrush = g.CreateSolidColorBrush(Color::FromHexString(pressedHex));
         auto borderBrush = g.CreateSolidColorBrush(Color::FromRgb(0x3A2F25));
         auto slotBrush = g.CreateSolidColorBrush(Color::FromRgb(0x120E0B));
 
-
         g.FillRectangle(housingRect, ebonyBrush);
         g.DrawRectangle(housingRect, borderBrush, 1.5f);
-
-        drawSingleWheel(g, pitchRect, pitchValue, true, slotBrush, pressedBrush, borderBrush);
-        drawSingleWheel(g, modRect, modValue, false, slotBrush, pressedBrush, borderBrush);
-
-        int wIndex = 0;
-        for (int i = 0; i < totalNotes; ++i)
-        {
-            int note = startNote + i;
-            if (!isBlackKey(note))
-            {
-                Rect keyRect(startX + (wIndex * whiteWidth), 0.f, startX + ((wIndex + 1) * whiteWidth), height);
-                if (whiteKeyBmp)
-                    g.DrawBitmap(whiteKeyBmp, keyRect, Rect(0.f, 0.f, (float)whiteKeyBmp.GetSize().width, (float)whiteKeyBmp.GetSize().height));
-                else
-                    g.FillRectangle(keyRect, (note == activeNote) ? pressedBrush : ivoryBrush);
-
-                g.DrawRectangle(keyRect, borderBrush, 1.0f);
-                wIndex++;
-            }
-        }
-
-    int32_t MP_STDCALL measure(GmpiDrawing_API::MP1_SIZE availableSize, GmpiDrawing_API::MP1_SIZE* returnDesiredSize) override
-    {
-        returnDesiredSize->width = 360.0f;
-        returnDesiredSize->height = 75.0f;
-        return MP_OK;
-    }
-
-    int32_t MP_STDCALL arrange(GmpiDrawing_API::MP1_RECT finalRect) override
-    {
-        auto res = MpGuiGfxBase::arrange(finalRect);
-        invalidateRect();
-        return res;
-    }
-
-       int32_t MP_STDCALL openWindow() override
-    {
-        auto res = MpGuiGfxBase::openWindow();
-        invalidateRect();
-        return res;
-    }
-     
-        wIndex = 0;
-        for (int i = 0; i < totalNotes; ++i)
-        {
-            int note = startNote + i;
-            if (isBlackKey(note))
-            {
-                float bx = startX + (wIndex * whiteWidth) - (blackWidth * 0.5f);
-                Rect keyRect(bx, 0.f, bx + blackWidth, blackHeight);
-                if (blackKeyBmp)
-                    g.DrawBitmap(blackKeyBmp, keyRect, Rect(0.f, 0.f, (float)blackKeyBmp.GetSize().width, (float)blackKeyBmp.GetSize().height));
-                else
-                    g.FillRectangle(keyRect, (note == activeNote) ? pressedBrush : ebonyBrush);
-
-                g.DrawRectangle(keyRect, borderBrush, 1.0f);
-            }
-            else
-            {
-                wIndex++;
-            }
-        }
-
-        return MP_OK;
-    }
-
-    int32_t MP_STDCALL onPointerDown(int32_t flags, GmpiDrawing_API::MP1_POINT point) override
-    {
-        setCapture();
-        Rect housingRect, pitchRect, modRect, keysRect;
-        getLayoutRects(housingRect, pitchRect, modRect, keysRect);
-
-        if (point.x >= pitchRect.left - 2.0f && point.x <= pitchRect.right + 2.0f)
-        {
-            dragMode = 2;
-
-
+drawSingleWheel(g, pitchRect, pitchValue, true, slotBrush, pressedBrush, borderBrush);
+drawSingleWheel(g, modRect, modValue, false, slotBrush, pressedBrush, borderBrush);
+int wIndex = 0;
+for (int i = 0; i < totalNotes; ++i)
+{
+int note = startNote + i;
+if (!isBlackKey(note))
+{
+Rect keyRect(startX + (wIndex * whiteWidth), 0.f, startX + ((wIndex + 1) * whiteWidth), height);
+if (whiteKeyBmp)
+g.DrawBitmap(whiteKeyBmp, keyRect, Rect(0.f, 0.f, (float)whiteKeyBmp.GetSize().width, (float)whiteKeyBmp.GetSize().height));
+else
+g.FillRectangle(keyRect, (note == activeNote) ? pressedBrush : ivoryBrush);
+g.DrawRectangle(keyRect, borderBrush, 1.0f);
+wIndex++;
+}
+}
+wIndex = 0;
+for (int i = 0; i < totalNotes; ++i)
+{
+int note = startNote + i;
+if (isBlackKey(note))
+{
+float bx = startX + (wIndex * whiteWidth) - (blackWidth * 0.5f);
+Rect keyRect(bx, 0.f, bx + blackWidth, blackHeight);
+if (blackKeyBmp)
+g.DrawBitmap(blackKeyBmp, keyRect, Rect(0.f, 0.f, (float)blackKeyBmp.GetSize().width, (float)blackKeyBmp.GetSize().height));
+else
+g.FillRectangle(keyRect, (note == activeNote) ? pressedBrush : ebonyBrush);
+g.DrawRectangle(keyRect, borderBrush, 1.0f);
+}
+else
+{
+wIndex++;
+}
+}
+return MP_OK;
+}
+int32_t MP_STDCALL onPointerDown(int32_t flags, GmpiDrawing_API::MP1_POINT point) override
+{
+setCapture();
+Rect housingRect, pitchRect, modRect, keysRect;
+getLayoutRects(housingRect, pitchRect, modRect, keysRect);
+if (point.x >= pitchRect.left - 2.0f && point.x <= pitchRect.right + 2.0f)
+{
+dragMode = 2;
 float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 pitchValue = std::clamp(rel, 0.0f, 1.0f);
-pinPitchBend = pitchValue;
+sendPitchBend(pitchValue);
 invalidateRect();
 return MP_OK;
 }
@@ -314,7 +328,7 @@ if (point.x >= modRect.left - 2.0f && point.x <= modRect.right + 2.0f)
 dragMode = 3;
 float rel = 1.0f - ((point.y - modRect.top) / std::max(1.0f, modRect.getHeight()));
 modValue = std::clamp(rel, 0.0f, 1.0f);
-pinModWheel = modValue;
+sendModWheel(modValue);
 invalidateRect();
 return MP_OK;
 }
@@ -326,8 +340,8 @@ int hit = hitTestNote(point, keysRect, relY);
 if (hit != -1)
 {
 activeNote = hit;
-pinNote = activeNote;
-pinVelocity = static_cast<int>(15 + relY * 112.0f);
+int velocity = static_cast(15 + relY * 112.0f);
+sendNoteOn(activeNote, velocity);
 invalidateRect();
 }
 }
@@ -342,14 +356,14 @@ if (dragMode == 2)
 {
 float rel = 1.0f - ((point.y - pitchRect.top) / std::max(1.0f, pitchRect.getHeight()));
 pitchValue = std::clamp(rel, 0.0f, 1.0f);
-pinPitchBend = pitchValue;
+sendPitchBend(pitchValue);
 invalidateRect();
 }
 else if (dragMode == 3)
 {
 float rel = 1.0f - ((point.y - modRect.top) / std::max(1.0f, modRect.getHeight()));
 modValue = std::clamp(rel, 0.0f, 1.0f);
-pinModWheel = modValue;
+sendModWheel(modValue);
 invalidateRect();
 }
 else if (dragMode == 1)
@@ -358,16 +372,12 @@ float relY = 0.5f;
 int hit = hitTestNote(point, keysRect, relY);
 if (hit != activeNote)
 {
+if (activeNote != -1) sendNoteOff(activeNote);
 activeNote = hit;
 if (activeNote != -1)
 {
-pinNote = activeNote;
-pinVelocity = static_cast<int>(15 + relY * 112.0f);
-
-}
-else
-{
-pinVelocity = 0;
+int velocity = static_cast(15 + relY * 112.0f);
+sendNoteOn(activeNote, velocity);
 }
 invalidateRect();
 }
@@ -380,12 +390,12 @@ releaseCapture();
 if (dragMode == 2)
 {
 pitchValue = 0.5f;
-pinPitchBend = pitchValue;
+sendPitchBend(pitchValue);
 invalidateRect();
 }
 else if (dragMode == 1 && activeNote != -1)
 {
-pinVelocity = 0;
+sendNoteOff(activeNote);
 activeNote = -1;
 invalidateRect();
 }
@@ -396,7 +406,7 @@ int32_t MP_STDCALL onMouseWheel(int32_t flags, int32_t delta, GmpiDrawing_API::M
 {
 if (activeNote != -1)
 {
-pinVelocity = 0;
+sendNoteOff(activeNote);
 activeNote = -1;
 }
 int currentStart = pinStartNote.getValue();
@@ -410,11 +420,8 @@ invalidateRect();
 return MP_OK;
 }
 };
-
 namespace
 {
-    auto r = gmpi::Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");
+auto r = gmpi::Register::withId(L"Cellulophone_Vintage_Keyboard");
 }
-
-
 
