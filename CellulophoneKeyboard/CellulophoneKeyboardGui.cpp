@@ -71,7 +71,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(note & 0x7F),
             (unsigned char)(std::clamp(velocity, 1, 127))
         };
-       pinMidiOut = MpBlob(3, msg));
+       pinMidiOut = MpBlob(3, msg);
 
     }
 
@@ -83,7 +83,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(note & 0x7F),
             0
         };
-       pinMidiOut = MpBlob(3, msg));
+       pinMidiOut = MpBlob(3, msg);
 
     }
 
@@ -95,7 +95,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(bend & 0x7F),
             (unsigned char)((bend >> 7) & 0x7F)
         };
-        pinMidiOut = MpBlob(3, msg));
+        pinMidiOut = MpBlob(3, msg);
         
     }
 
@@ -107,7 +107,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             1,
             (unsigned char)(ccVal & 0x7F)
         };
-       pinMidiOut = MpBlob(3, msg));
+       pinMidiOut = MpBlob(3, msg);
 
     }
 
