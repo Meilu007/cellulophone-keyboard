@@ -7,7 +7,7 @@ build_gmpi_plugin(
     SOURCE_FILES
         CellulophoneKeyboardGui.cpp
 )
-
+   
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} d2d1 dwrite windowscodecs)
 endif()
