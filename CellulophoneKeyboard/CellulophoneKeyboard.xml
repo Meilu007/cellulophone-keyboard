@@ -2,7 +2,7 @@
 <PluginList>
   <Plugin id="Cellulophone_Vintage_Keyboard" name="Vintage Keyboard (Velocity)" category="Controls">
     <GUI graphicsApi="GmpiGui">
-      <Pin id="0" name="MIDI Out" direction="out" datatype="midi" />
+      <Pin id="0" name="MIDI Out" direction="out" datatype="blob" />
       <Pin id="1" name="Channel" datatype="int" default="0" />
       <Pin id="2" name="Start Note" datatype="int" default="48" />
       <Pin id="3" name="Octaves" datatype="int" default="3" />
