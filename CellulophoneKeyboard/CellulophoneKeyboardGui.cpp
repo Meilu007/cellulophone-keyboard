@@ -71,7 +71,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(note & 0x7F),
             (unsigned char)(std::clamp(velocity, 1, 127))
         };
-        pinMidiOut.setValue(gmpi::MpBlob(3, msg));
+       pinMidiOut = MpBlob(3, msg));
 
     }
 
@@ -83,7 +83,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(note & 0x7F),
             0
         };
-       pinMidiOut.setValue(gmpi::MpBlob(3, msg));
+       pinMidiOut = MpBlob(3, msg));
 
     }
 
@@ -95,8 +95,8 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             (unsigned char)(bend & 0x7F),
             (unsigned char)((bend >> 7) & 0x7F)
         };
-        pinMidiOut.setValue(gmpi::MpBlob(3, msg));
-
+        pinMidiOut = MpBlob(3, msg));
+        
     }
 
     void sendModWheel(float normVal)
@@ -107,7 +107,7 @@ class CellulophoneKeyboardGui : public MpGuiGfxBase
             1,
             (unsigned char)(ccVal & 0x7F)
         };
-       pinMidiOut.setValue(gmpi::MpBlob(3, msg));
+       pinMidiOut = MpBlob(3, msg));
 
     }
 
@@ -429,5 +429,5 @@ return MP_OK;
 };
 namespace
 {
-auto r = gmpi::Register::withId(L"Cellulophone_Vintage_Keyboard");
+auto r = gmpi::Register<CellulophoneKeyboardGui>::withId(L"Cellulophone_Vintage_Keyboard");     
 }
